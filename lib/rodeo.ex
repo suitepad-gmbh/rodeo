@@ -64,8 +64,9 @@ defmodule Rodeo do
         # ...
       end)
   """
-  def stub(%Rodeo{handler: handler}, match, fun) do
-    GenServer.call(handler, {:stub, match, fun})
+  def stub(%Rodeo{handler: handler} = rodeo, match, fun \\ nil) do
+    stub_id = GenServer.call(handler, {:stub, match, fun})
+    {rodeo, stub_id}
   end
 
   @doc """
@@ -85,5 +86,22 @@ defmodule Rodeo do
   """
   def send(%Rodeo{handler: handler}, data) do
     GenServer.cast(handler, {:send, data})
+  end
+
+  @doc """
+  Returns the call count of the given stub.
+
+  ## Example
+
+      stub = Rodeo.stub(rodeo, "Hey\n")
+      {:ok, socket} = :gen_tcp.connect({127, 0, 0, 1}, 4040, active: false)
+      :ok = :gen_tcp.send(socket, "Hey\n")
+      assert Rodeo.call_count(stub) == 1
+
+  """
+  def call_count({%Rodeo{handler: handler}, stub_id}, opts \\ []) do
+    wait = Keyword.get(opts, :wait, 5)
+    Process.sleep(wait)
+    GenServer.call(handler, {:call_count, stub_id})
   end
 end

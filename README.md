@@ -52,7 +52,7 @@ defmodule FooTest do
   end
 
   test "greets the world", %{rodeo: rodeo} do
-    Rodeo.stub(rodeo, "Hello\n", fn _ ->
+    stub = Rodeo.stub(rodeo, "Hello\n", fn _ ->
       Rodeo.send(rodeo, "World\n")
     end)
 
@@ -61,6 +61,7 @@ defmodule FooTest do
     {:ok, reply} = :gen_tcp.recv(socket, 0, 1000)
 
     assert reply == 'World\n'
+    assert Rodeo.call_count(stub) == 1
   end
 end
 ```

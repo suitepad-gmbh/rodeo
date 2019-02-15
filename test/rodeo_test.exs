@@ -31,4 +31,29 @@ defmodule RodeoTest do
     {:ok, reply} = :gen_tcp.recv(socket, 0, 1000)
     assert reply == 'Yeeehaaaa\n'
   end
+
+  test "stub kees a call counter", %{rodeo: rodeo} do
+    stub1 = Rodeo.stub(rodeo, "Hello\n")
+
+    stub2 =
+      Rodeo.stub(rodeo, "World\n", fn _ ->
+        Rodeo.send(rodeo, "What?\n")
+      end)
+
+    {:ok, socket} = :gen_tcp.connect({127, 0, 0, 1}, 4040, active: false)
+
+    :ok = :gen_tcp.send(socket, "Hello\n")
+    assert Rodeo.call_count(stub1) == 1
+    assert Rodeo.call_count(stub2) == 0
+
+    :ok = :gen_tcp.send(socket, "World\n")
+    assert Rodeo.call_count(stub1) == 1
+    assert Rodeo.call_count(stub2) == 1
+    {:ok, reply} = :gen_tcp.recv(socket, 0, 1000)
+    assert reply == 'What?\n'
+
+    :ok = :gen_tcp.send(socket, "Hello\n")
+    assert Rodeo.call_count(stub1) == 2
+    assert Rodeo.call_count(stub2) == 1
+  end
 end
