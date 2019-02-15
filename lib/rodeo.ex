@@ -35,7 +35,7 @@ defmodule Rodeo do
 
     with {:ok, handler} <- Rodeo.Handler.start_link(),
          {:ok, listener} <-
-           :ranch.start_listener(listener_ref, :ranch_tcp, [{:port, port}], Rodeo.Protocol,
+           :ranch.start_listener(listener_ref, 100, :ranch_tcp, [{:port, port}], Rodeo.Protocol,
              handler: handler
            ) do
       {:ok, %Rodeo{handler: handler, listener: listener, listener_ref: listener_ref}}

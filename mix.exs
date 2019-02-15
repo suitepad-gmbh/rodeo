@@ -31,7 +31,7 @@ defmodule Rodeo.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ranch, "~> 1.7"},
+      {:ranch, "~> 1.3"},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
